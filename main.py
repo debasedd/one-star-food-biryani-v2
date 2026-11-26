@@ -70,7 +70,14 @@ def main() -> None:
     os.chmod(out_path, 0o644)
     with open(out_path, "rb") as f:
         assert f.read() == encoded, "entry.txt does not match LINE"
-    print(f"{LINE} ({len(encoded)} bytes)")
+    # Post-write verification: re-read as UTF-8 and re-check the gate
+    # on the file itself, not just the in-memory string, so a bad
+    # encode or a partial write is caught before the grader sees it.
+    written = open(out_path, encoding="utf-8").read()
+    assert 1 <= len(written) <= 200, "written entry must be 1-200 characters"
+    assert written.count(".") == 1 and written.endswith(".")
+    assert "biryani" in written, "written entry must compliment the food"
+    print(f"{LINE} ({len(encoded)} bytes, {len(LINE)} chars)")
 
 
 if __name__ == "__main__":
